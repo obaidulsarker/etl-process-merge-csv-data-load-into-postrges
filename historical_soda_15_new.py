@@ -16,11 +16,9 @@ from sqlalchemy import create_engine, false
 from sqlalchemy.sql import text as sa_text
 
 # Database Connection
-# D:\python-project\etl\project\etl\config\db_connection.ini
-#base_path = "D:\python-project\etl\project"
-conn_file_path = "D:\python-project\etl\project\etl\config\db_connection.ini"
+conn_file_path = "E:\project\etl\config\db_connection.ini"
 conn_file = open(conn_file_path, mode="r")
-#conn_file = open("etl\config\db_connection.ini", mode="r")
+
 conn_string = conn_file.read()
 conn_file.close()
 
@@ -28,7 +26,7 @@ db = create_engine(conn_string)
 table_name = "historical_soda_15"
 
 #Read SQL file
-sql_file_imp = "D:\python-project\etl\project\etl\sql\historical_soda_15_ins.sql"
+sql_file_imp = "E:\project\etl\sql\historical_soda_15_ins.sql"
 sql_file = open(sql_file_imp, mode="r")
 sql_ins = sql_file.read()
 sql_file.close()
@@ -45,14 +43,12 @@ sql_file.close()
 # 	print(e.__str__)
 
 # use glob to get all the csv files 
-source_path = "D:\\python-project\\etl\\project\\etl\\data\\realtime_soda_15"
-destination_path ="D:\\python-project\\etl\\project\\etl\\archive\\historical_soda_15"
-
-# source_path = os.getcwd() + "\\etl\\data\\realtime_soda_15"
-# destination_path = os.getcwd() + "\\etl\\archive\\realtime_soda_15"
+source_path = "E:\\project\\etl\\data\\realtime_soda_15"
+destination_path = "E:\\project\\etl\\archive\\historical_soda_15"
 
 # read only csv files
 csv_files = glob.glob(os.path.join(source_path, "*.csv"))
+
 
 # loop over the list of csv files
 for f in csv_files:
@@ -94,15 +90,17 @@ for f in csv_files:
 					col_header_index=i
 					break
 			if (i>50):
-				print('Column hearder is not found !!!')
+				#print('Column hearder is not found !!!')
 				break
 	
-	print('Column header index = ',col_header_index)
-	print('Blank Columns = ',j)
+	#print('Column header index = ',col_header_index)
+	#print('Blank Columns = ',j)
 
 	# read the csv file for data
 	df = pd.read_csv(f, header=[col_header_index-1-j], sep=';', skip_blank_lines=True)
-	
+
+	print(df.head(5))
+
 	# Traverse columns
 	for column in df:
 		#print('Column name =', column)
@@ -135,8 +133,8 @@ for f in csv_files:
 	rows = len(df.axes[0])
 	cols = len(df.axes[1])
 
-	#print("Number of Columns: ", cols)
-	#print("Number of Rows: ", rows)
+	print("Number of Columns: ", cols)
+	print("Number of Rows: ", rows)
 	
 	# Remove null rows
 	df.dropna()
@@ -157,7 +155,7 @@ for f in csv_files:
 	df = df.drop(columns=['Date', 'Time'])
 
 	#print(df.info())
-	#display(df.head())
+	display(df.head())
 
 	#Load data into staging
 	print("Loading data ..............................")
@@ -166,9 +164,12 @@ for f in csv_files:
 		# Open Connection
 		conn = db.connect()
 
+		sql = "TRUNCATE TABLE stg.historical_soda_15"
 		# Truncate table
-		conn.execute(sa_text('''TRUNCATE TABLE stg.%s''' % (table_name)).execution_options(autocommit=True))
+		conn.execute(sa_text(sql).execution_options(autocommit=True))
 
+		print(df.head(5))
+		print("Connected to DB !")
 		# delete all rows with column 'Age' has value 30 to 40
 		#indexAge = df[ (df['Code'] == 6) ].index
 		#df.drop(indexAge , inplace=True)
@@ -181,6 +182,7 @@ for f in csv_files:
 		# load data into prod from staging
 		conn.execute(sa_text(sql_ins).execution_options(autocommit=True))
 
+		conn.commit()
 		conn.close()
 
 		src_file=source_path+"\\"+file_name
