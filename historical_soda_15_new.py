@@ -16,7 +16,7 @@ from sqlalchemy import create_engine, false
 from sqlalchemy.sql import text as sa_text
 
 # Database Connection
-conn_file_path = "E:\project\etl\config\db_connection.ini"
+conn_file_path = "D:\python-project\etl\project\etl\config\db_connection.ini"
 conn_file = open(conn_file_path, mode="r")
 
 conn_string = conn_file.read()
@@ -25,8 +25,10 @@ conn_file.close()
 db = create_engine(conn_string)
 table_name = "historical_soda_15"
 
+print(table_name)
+
 #Read SQL file
-sql_file_imp = "E:\project\etl\sql\historical_soda_15_ins.sql"
+sql_file_imp = "D:\python-project\etl\project\etl\sql\historical_soda_15_ins.sql"
 sql_file = open(sql_file_imp, mode="r")
 sql_ins = sql_file.read()
 sql_file.close()
@@ -43,13 +45,13 @@ sql_file.close()
 # 	print(e.__str__)
 
 # use glob to get all the csv files 
-source_path = "E:\\project\\etl\\data\\realtime_soda_15"
-destination_path = "E:\\project\\etl\\archive\\historical_soda_15"
+source_path = "D:\\python-project\\etl\project\\etl\data\\historical_soda_15"
+destination_path = "D:\\python-project\\etl\project\\etl\\archive\\historical_soda_15"
 
 # read only csv files
 csv_files = glob.glob(os.path.join(source_path, "*.csv"))
 
-
+print (csv_files)
 # loop over the list of csv files
 for f in csv_files:
 
