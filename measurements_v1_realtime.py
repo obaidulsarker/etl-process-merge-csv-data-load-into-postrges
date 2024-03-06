@@ -31,6 +31,7 @@ try:
 		# load data into prod from staging
 		print("Loading data ..............................")
 		conn.execute(sa_text(sql_ins).execution_options(autocommit=True))
+		conn.commit()
 
 		conn.close()
 
