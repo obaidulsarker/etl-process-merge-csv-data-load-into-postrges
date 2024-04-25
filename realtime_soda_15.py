@@ -129,7 +129,7 @@ for f in csv_files:
 		if (column=='Time'):
 			df[column] = df[column].str.replace('24:00','23:59')
 	
-	#print(df.info())
+	print(df.info())
 
 	# computing number of rows and column
 	rows = len(df.axes[0])
