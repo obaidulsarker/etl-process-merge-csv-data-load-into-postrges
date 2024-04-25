@@ -181,34 +181,30 @@ def main():
     create_Kha_table()
     # all_df = read_kha()☻
     # new_ones = get_new(all_df)
-    while True:
-        if check_file_existance() is False:
-            break
 
-        if datetime.now().minute == 10 and datetime.now().second == 0:   
-            time.sleep(10)
+    if check_file_existance() is False:
+        return None
 
-            with db_connect().cursor() as curs:
-                curs.execute('''DROP TABLE IF EXISTS public.temp_table;''')
+    with db_connect().cursor() as curs:
+        curs.execute('''DROP TABLE IF EXISTS public.temp_table;''')
             
-            # create temp table
-            create_temp_table()
+    # create temp table
+    create_temp_table()
             
-            # read the Al-Kharsaah data and insert it in the temp_table
-            read_insert_kha_data()
+    # read the Al-Kharsaah data and insert it in the temp_table
+    read_insert_kha_data()
             
-            # insert the tem_table data into measurments_kharsaa avoiding duplicates
-            with db_connect().cursor() as curs:
-                curs.execute('''
+    # insert the tem_table data into measurments_kharsaa avoiding duplicates
+    with db_connect().cursor() as curs:
+        curs.execute('''
                 INSERT INTO public.measurments_kharsaa
                 SELECT * 
                 FROM public.temp_table a 
                  WHERE NOT EXISTS ( SELECT 0 FROM public.measurments_kharsaa b WHERE b.tstamp = a.tstamp )
                              ''')
-            print("Data is imported into database successfully!")
+    print("Data is imported into database successfully!")
 
-            time.sleep(3300) # wait 55 minutes
-
+           
     return None
 
 
